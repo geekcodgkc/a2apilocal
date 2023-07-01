@@ -1,7 +1,7 @@
 import pyodbc
 import requests
 import json
-import jsondiff
+
 
 class search_changes():
     def query_tb_temp():   
