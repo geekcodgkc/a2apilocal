@@ -1,7 +1,8 @@
 import json
 import requests
-import pymongo
 import os
+import exceptions
+import sys
 
 
 class send_api_cloud():
@@ -12,11 +13,27 @@ class send_api_cloud():
         try:
              r = requests.post(URL, json)
              p = r.json()
+             if p == "status : 400":
+                 exceptions.Handler_Exceptions()
+                 return "400"
              return p
         
-        except Exception as error: 
-            return str(error)
+        except Exception as error:
+            exceptions.Handler_Exceptions(error)
+            sys.exit() 
+            
         
-   
+    def put(json):
+        URL = "/put"
+
+        try:
+            r = requests.put(URL, json)
+            p = r.json()
+        except Exception as error:
+            exceptions.Handler_Exceptions(str(error))
+            sys.exit()
+                
+
+
         
     
