@@ -11,60 +11,77 @@ class Api():
 
             a2_database = pyodbc.connect("DSN=A2KSA")
             cur_a2 = a2_database.cursor()
+            cur_a2.execute("""SELECT
+                                    FI_CODIGO,
+                                    FI_DESCRIPCION,
+                                    FI_REFERENCIA,
+                                    FI_INTERNET,
+                                    FI_UNIDAD,
+                                    CAST(FI_CATEGORIA AS VARCHAR(8)) AS FI_CATEGORIA
+                                    INTO "C:/a2CA2020/Empre001/TMP/A2INVENTARIO"
+                                    FROM SINVENTARIO""")
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FI_KEYCODIGO" ON "C:/a2CA2020/Empre001/TMP/A2INVENTARIO" ("FI_CODIGO")""")
+
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FI_KEYDEP01" ON "C:/a2CA2020/Empre001/TMP/A2INVENTARIO" ("FI_CATEGORIA");""")
+    
+                
             cur_a2.execute("""SELECT 
-                                    FIC_CODEITEM AS CODIGO,
-                                    FIC_P01IPRECIOTOTAL AS PRECIOBS,
-                                    FIC_P01PRECIOTOTALEXT * 1.16 AS PRECIOUS,
-                                    FIC_P02IPRECIOTOTAL AS PRECIOBS2,
-                                    FIC_P02PRECIOTOTALEXT * 1.16 AS PRECIOUS2
-                                    INTO PRUEBA_COSTO
-                                    FROM A2INVCOSTOSPRECIOS""")
-            cur_a2.execute("""CREATE INDEX "KEY_CODIGO" ON PRUEBA_COSTO (CODIGO) """)
-            
-            cur_a2.execute("""SELECT 
-                                    FI_CODIGO AS CODIGOINV,
-                                    FI_DESCRIPCION AS DESCRIPCION,
-                                    FI_CATEGORIA
-                                INTO PRUEBA_INV
-                                FROM SINVENTARIO
-                                WHERE FI_STATUS = 1 """)
-            cur_a2.execute("""CREATE INDEX "KEY_CODIGO" ON PRUEBA_INV (CODIGOINV)""") 
+                                FIC_CODEITEM,
+                                FIC_P01PRECIOTOTALEXT,     --PRECIO 01 EN DOLARES.
+                                FIC_P02PRECIOTOTALEXT,     --COSTO ACTUAL   EN DOLARES.
+                                FIC_P03PRECIOTOTALEXT,     --COSTO PROMEDIO EN DOLARES.
+                                FIC_P04PRECIOTOTALEXT
+                                INTO "C:/a2CA2020/Empre001/TMP/A2PRECIOS"
+                                FROM A2INVCOSTOSPRECIOS """)
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FIC_CODEITEM" ON "C:/a2CA2020/Empre001/TMP/A2PRECIOS" ("FIC_CODEITEM")""") 
 
             cur_a2.execute("""SELECT 
-                                    FT_CODIGOPRODUCTO AS CODIGO_EX,
-                                    FT_CODIGODEPOSITO AS DEPOSITO,
-                                    CASE WHEN (FT_EXISTENCIAPEDIDO = NULL) AND (FT_EXISTENCIA = NULL) THEN 0
-                                         WHEN (FT_EXISTENCIAPEDIDO = NULL) AND (FT_EXISTENCIA >= 0) THEN FT_EXISTENCIA
-                                         WHEN (FT_EXISTENCIAPEDIDO = NULL) AND (FT_EXISTENCIA < 0) THEN FT_EXISTENCIA
-                                    ELSE (FT_EXISTENCIA - FT_EXISTENCIAPEDIDO)
-                                    END AS EXISTENCIA      
-                                    INTO PRUEBA_EXI
-                                FROM SINVDEP 
-                                WHERE FT_CODIGODEPOSITO  = 2 
-                                    """)
-            
-            cur_a2.execute("""CREATE INDEX "KEY_CODIGO" ON PRUEBA_EXI (CODIGO_EX) """)
-            
-
-            cur_a2.execute("""SELECT 
-                                    CODIGOINV, DESCRIPCION, PRECIOBS, PRECIOBS2, PRECIOUS, PRECIOUS2, EXISTENCIA
-                                INTO TABLE_A 
-                                FROM PRUEBA_INV
-                                INNER JOIN PRUEBA_COSTO  ON CODIGOINV = CODIGO
-                                INNER JOIN PRUEBA_EXI    ON CODIGOINV = CODIGO_EX
-                                 
+                                FD_CODIGO,
+                                FD_DESCRIPCION
+                                INTO "C:/a2CA2020/Empre001/TMP/A2DEP01"
+                                FROM SCATEGORIA
                                 """)
-            cur_a2.execute("""CREATE INDEX "KEY_CODIGO" ON TABLE_A (CODIGOINV) """)
-            
-            #####DROP TABLE########
-            cur_a2.execute("DROP TABLE IF EXISTS PRUEBA_COSTO")
-            cur_a2.execute("DROP TABLE IF EXISTS PRUEBA_INV")
-            cur_a2.execute("DROP TABLE IF EXISTS PRUEBA_EXI")
-            ######CONNECT CLOSE######
-            a2_database.close()
+                
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FD_KEYCODIGO" ON "C:/a2CA2020/Empre001/TMP/A2DEP01"  ("FD_CODIGO") """)
 
+            cur_a2.execute("""SELECT
+                                FT_CODIGOPRODUCTO,
+                                SUM(FT_EXISTENCIA) AS EXISTENCIA
+                                INTO "C:/a2CA2020/Empre001/TMP/A2EXISTENCIA"
+                                FROM SINVDEP
+                                GROUP BY FT_CODIGOPRODUCTO
+                                    """)
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FD_KEYCODIGO" ON "C:/a2CA2020/Empre001/TMP/A2EXISTENCIA" ("FT_CODIGOPRODUCTO") """ )
+            ##########CREATING TABLE A FIRST TIME EVER###############################
+            cur_a2.execute("""SELECT
+                                    FI_CODIGO,
+                                    FI_DESCRIPCION,
+                                    FI_REFERENCIA,
+                                    FI_INTERNET,
+                                    FI_CATEGORIA,
+            
+
+                                    FIC_P01PRECIOTOTALEXT AS PRECIO01,     
+                                    FIC_P02PRECIOTOTALEXT AS PRECIO02,     
+                                    FIC_P03PRECIOTOTALEXT AS PRECIO03,     
+                                    FIC_P04PRECIOTOTALEXT AS PRECIO04,
+                                    FI_UNIDAD
+
+                                    INTO "C:/a2CA2020/Empre001/TMP/TABLA_A "
+                                    FROM "C:/a2CA2020/Empre001/TMP/A2INVENTARIO" 
+                                    INNER JOIN "C:/a2CA2020/Empre001/TMP/A2PRECIOS" ON FI_CODIGO = FIC_CODEITEM""")
+                                    #INNER JOIN "C:/a2CA2020/Empre001/TMP/A2DEP01"  ON FI_CATEGORIA = FD_CODIGO
+                                    ##INNER JOIN "C:/a2CA2020/Empre001/TMP/A2EXISTENCIA" ON FI_CODIGO = FT_CODIGOPRODUCTO """)
+            ######### QUERY TO SEND PRODUCTS TO WEB FIRST TIME EVER WHEN FI_INTERNET = TRUE####################
+            cur_a2.execute("""SELECT * FROM "C:/a2CA2020/Empre001/TMP/TABLA_A"  WHERE FI_INTERNET = 1 """)
+            
+            true =cur_a2.fetchall()
+            cur_a2.execute("""SELECT * INTO "C:/a2CA2020/Empre001/TMP/TABLA_B" FROM "C:/a2CA2020/Empre001/TMP/TABLA_A" """)
+            a2_database.close()
+            print(len(true))
             
        except Exception as e:
+               print(e)
                return str(e)
        
 
