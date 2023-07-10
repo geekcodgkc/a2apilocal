@@ -1,6 +1,8 @@
 import requests
 import json
 import pyodbc
+from function import send_api_cloud
+from exceptions import Handler_Exceptions
 
 
 class Api():
@@ -79,10 +81,25 @@ class Api():
             cur_a2.execute("""SELECT * INTO "C:/a2CA2020/Empre001/TMP/TABLA_B" FROM "C:/a2CA2020/Empre001/TMP/TABLA_A" """)
             a2_database.close()
             print(len(true))
-            
+            return true
        except Exception as e:
                print(e)
                return str(e)
-       
 
-ini = Api.connect_database()      
+    def post_firs_time():
+        list_products = Api.connect_database()
+        json_array = []
+        for i in list_products:
+             json_array.append({'id': i[0],
+                                   'name': i[1],
+                                   'prices': {'p1': i[5],
+                                                'p2': i[6],
+                                                'p3':i[7],
+                                                'p4':i[8] },
+                                   'presentation': 'botella'
+                                                } )
+        Handler_Exceptions.save_json_to_post_send(json_array)         
+        status = send_api_cloud.post(json_array)   
+        print(status)  
+
+ini = Api.post_firs_time()      

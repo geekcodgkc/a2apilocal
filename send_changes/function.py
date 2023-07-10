@@ -6,13 +6,17 @@ import sys
 
 
 class send_api_cloud():
+    HEADERS = {'Authorization': 'popoj'}
 
     def post(post):
-        URL= "http://200.8.121.68:3001/products"
-        headers = {"Content-Type": "application/json",}
+        URL= "http://146.190.117.97/api-v1/products"
+        headers_tk = {"Authorization" : "Bearer 3egUxGRb1x2ekiHreBshswQpsEL0QsgOtSYcMYiiOoPx7PtU70EYpHdJ6vALOisb"}
+                  #   "Content-Type" : "application/json"}
         try:
-             r = requests.post(URL, json=post)
+             r = requests.post(URL, headers=headers_tk, json=post)
              p = r.json()
+             a= r.elapsed
+             print(a)
              if p == {'error':'hubo un error'}:
                  Handler_Exceptions.write_fatal_exceptions(p)
                  return "400"
@@ -20,7 +24,7 @@ class send_api_cloud():
         
         except Exception as error:
             Handler_Exceptions.write_fatal_exceptions(str(error))
-            return "400"
+            return "E400"
             sys.exit() 
             
         

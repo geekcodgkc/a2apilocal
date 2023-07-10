@@ -93,6 +93,14 @@ class search_changes():
         except Exception as e:
             print(e)   
 
+    def changes_clients():
+        try:
+            connect = pyodbc.connect("DSN=A2KSA")
+            cur = connect.cursor()
+            cur.execute(""" """)
+        except Exception as e:
+            print(e)     
+
     def search_new_register():
         try:
             ##### SEARCH NEW PRODUCTS ACTIVATE AND CONSTRUCT JSON FILE TO POST METHOD ###########
