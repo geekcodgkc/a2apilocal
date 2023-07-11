@@ -97,8 +97,7 @@ class Api():
                                                 'p3':i[7],
                                                 'p4':i[8] },
                                    'presentation': 'botella'
-                                                } )
-        Handler_Exceptions.save_json_to_post_send(json_array)         
+                                                } )         
         status = send_api_cloud.post(json_array)   
         print(status)  
 

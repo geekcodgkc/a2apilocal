@@ -3,17 +3,23 @@ import requests
 import os
 from exceptions import Handler_Exceptions
 import sys
+from dotenv import load_dotenv
 
+load_dotenv("C:/ApiRestFlask/PROYECTOS MEJORADOS/CONECTORPE/.env.txt")
+token = os.getenv('API_TOKEN')
+URL = os.getenv('API_URL')
+HEADERS = {'Authorization' : f'Bearer {token}'}
 
 class send_api_cloud():
-    HEADERS = {'Authorization': 'popoj'}
+    global HEADERS
+    global URL    
+        
 
     def post(post):
-        URL= "http://146.190.117.97/api-v1/products"
-        headers_tk = {"Authorization" : "Bearer 3egUxGRb1x2ekiHreBshswQpsEL0QsgOtSYcMYiiOoPx7PtU70EYpHdJ6vALOisb"}
+        
                   #   "Content-Type" : "application/json"}
         try:
-             r = requests.post(URL, headers=headers_tk, json=post)
+             r = requests.post(URL+ '/products', headers=HEADERS , json=post)
              p = r.json()
              a= r.elapsed
              print(a)
