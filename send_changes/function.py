@@ -108,7 +108,7 @@ class send_api_cloud():
                     else:
                         pass
                 except Exception as e: 
-                     Handler_Exceptions.save_json_to_put_send(json_update, id_product= i[0])      
+                     Handler_Exceptions.save_json_to_put_send_product(json_update, id_product= i[0])      
                      print(e)
                      return '400'  
         except Exception as error:

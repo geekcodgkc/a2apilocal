@@ -19,16 +19,16 @@ class client():
         folder and return if exist a json file and construct Table A
         """
         try:
-            connect = pyodbc.connect()
+            connect = pyodbc.connect("DSN=A2KSA")
             cur = connect.cursor()
             cur.execute("""SELECT FC_CODIGO, FC_GKC_INTERNET
-                            INTO "C:/a2CA2020/Empre001/TMP/GKC_TABLEB"
+                            INTO "//192.168.1.254/a2appsH$/Pagina_Web/ConectorA2/Clients_/Tmp_clients/GKC_TABLEB"
                             FROM SCLIENTES
                         WHERE FC_STATUS = 1 """)
-            cur.execute("""CREATE INDEX IF NOT EXISTS "FC_CODE" ON "C:/a2CA2020/Empre001/TMP/GKC_TABLEB" ("FC_CODIGO") """)
+            cur.execute("""CREATE INDEX IF NOT EXISTS "FC_CODE" ON "//192.168.1.254/a2appsH$/Pagina_Web/ConectorA2/Clients_/Tmp_clients/GKC_TABLEB" ("FC_CODIGO") """)
         except Exception as e:
             pass    
-        list_jsons = glob.glob("C:/a2CA2020/Empre001/TMP/*.json")
+        list_jsons = glob.glob("//192.168.1.254/a2appsH$/Pagina_Web/ConectorA2/Json__File/NewClients/*.json")
         if len(list_jsons) > 0:
             list_str = str(list_jsons[0])
             file_json = list_str.replace("\\", "/")
@@ -44,6 +44,7 @@ class client():
             sys.exit()        
 
     def search_client_if_exist(rif_client):
+        """Verifiying the client exists in a2 database"""
         try:
             connect = pyodbc.connect("DSN=A2KSA")
             cur = connect.cursor()
@@ -58,25 +59,33 @@ class client():
             print(e)
 
     def search_activated_client(client):
+        """VERIFIYING THE CLIENT IS ACTIVATED IN A2 DATABASE
+        """
         try:
             json_update_client = {}
             connect = pyodbc.connect("DSN=A2KSA")
             cur = connect.cursor()
             cur.execute(f"SELECT FC_CODIGO, FC_GKC_INTERNET FROM SCLIENTES WHERE FC_STATUS = 1 AND FC_GKC_INTERNET = 1 AND FC_CODIGO = '{client['id']}' ")
             var = cur.fetchall()
-            for i in var:
-                json_update_client.update({'status': True})
-                print('pass3')
-                return json_update_client
+            if len(var) > 0:
+                for i in var:
+                    json_update_client.update({'status': True})
+                    print('pass3')
+                    return json_update_client
+            else:
+                return None    
         except Exception as e:
-            print(e)  
+            print(e)
+            return None  
     
     def move_file(path_file):
+        """Move json file to new path only if the put method was 'OK' """
         move = shutil.move(path_file, "C:/ApiRestFlask/PROYECTOS MEJORADOS/CONECTORPE")
         print(str(move))
 
 
     def insert_client():
+        """Father function to start the program script and every function called"""
         read = client.read_client_to_insert()
         if_exist = client.search_client_if_exist(read[0])
         if type(read) == dict and if_exist == False:
@@ -92,12 +101,17 @@ class client():
             try:
                 if type(read[0]) == dict and if_exist == True:
                     put = client.search_activated_client(read[0])
-                    id = read[0]
-                    path = read[1]
-                    r = requests.put(client.URL + f"/{id['id']}", headers=client.HEADERS, json= put)
-                    p = r.json()
-                    client.move_file(path)
-                    #print(p)
+                    if put == None:
+                        sys.exit()
+                    else:    
+                        id = read[0]
+                        path = read[1]
+                        try:
+                            r = requests.put(client.URL + f"/{id['id']}", headers=client.HEADERS, json= put)
+                            p = r.json()
+                            client.move_file(path)
+                        except Exception as e:
+                            Handler_Exceptions.save_json_to_put_send(put, id['id'])
                     
                     print(put)
                     print("No hice nada")
