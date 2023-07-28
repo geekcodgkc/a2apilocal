@@ -18,40 +18,40 @@ class search_changes():
                                     FI_INTERNET,
                                     FI_UNIDAD,
                                     CAST(FI_CATEGORIA AS VARCHAR(8)) AS FI_CATEGORIA
-                                    INTO "C:/a2CA2020/Empre001/TMP/A2INVENTARIO"
+                                    INTO "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2INVENTARIO"
                                     FROM SINVENTARIO""")
-            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FI_KEYCODIGO" ON "C:/a2CA2020/Empre001/TMP/A2INVENTARIO" ("FI_CODIGO")""")
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FI_KEYCODIGO" ON "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2INVENTARIO" ("FI_CODIGO")""")
 
-            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FI_KEYDEP01" ON "C:/a2CA2020/Empre001/TMP/A2INVENTARIO" ("FI_CATEGORIA");""")
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FI_KEYDEP01" ON "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2INVENTARIO" ("FI_CATEGORIA");""")
     
                 
             cur_a2.execute("""SELECT 
                                 FIC_CODEITEM,
-                                FIC_P01PRECIOTOTALEXT,     
-                                FIC_P02PRECIOTOTALEXT,     
-                                FIC_P03PRECIOTOTALEXT,     
-                                FIC_P04PRECIOTOTALEXT
-                                INTO "C:/a2CA2020/Empre001/TMP/A2PRECIOS"
+                                FIC_P01IPRECIOTOTAL,     
+                                FIC_P02IPRECIOTOTAL,     
+                                FIC_P03IPRECIOTOTAL,     
+                                FIC_P04IPRECIOTOTAL
+                                INTO "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2PRECIOS"
                                 FROM A2INVCOSTOSPRECIOS """)
-            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FIC_CODEITEM" ON "C:/a2CA2020/Empre001/TMP/A2PRECIOS" ("FIC_CODEITEM")""") 
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FIC_CODEITEM" ON "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2PRECIOS" ("FIC_CODEITEM")""") 
 
             cur_a2.execute("""SELECT 
                                 FD_CODIGO,
                                 FD_DESCRIPCION
-                                INTO "C:/a2CA2020/Empre001/TMP/A2DEP01"
+                                INTO "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2DEP01"
                                 FROM SCATEGORIA
                                 """)
                 
-            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FD_KEYCODIGO" ON "C:/a2CA2020/Empre001/TMP/A2DEP01" ("FD_CODIGO")""")
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FD_KEYCODIGO" ON "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2DEP01" ("FD_CODIGO")""")
 
             cur_a2.execute("""SELECT
                                 FT_CODIGOPRODUCTO,
                                 SUM(FT_EXISTENCIA) AS EXISTENCIA
-                                INTO "C:/a2CA2020/Empre001/TMP/A2EXISTENCIA"
+                                INTO "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2EXISTENCIA"
                                 FROM SINVDEP
                                 GROUP BY FT_CODIGOPRODUCTO
                                     """)
-            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FD_KEYCODIGO" ON "C:/a2CA2020/Empre001/TMP/A2EXISTENCIA" ("FT_CODIGOPRODUCTO") """ )
+            cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FD_KEYCODIGO" ON "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2EXISTENCIA" ("FT_CODIGOPRODUCTO") """ )
             ##########CREATING TABLE A FIRST TIME EVER###############################
             cur_a2.execute("""SELECT
                                     FI_CODIGO,
@@ -61,15 +61,15 @@ class search_changes():
                                     FI_CATEGORIA,
                                    
 
-                                    FIC_P01PRECIOTOTALEXT AS PRECIO01,     
-                                    FIC_P02PRECIOTOTALEXT AS PRECIO02,     
-                                    FIC_P03PRECIOTOTALEXT AS PRECIO03,     
-                                    FIC_P04PRECIOTOTALEXT AS PRECIO04,
+                                    FIC_P01IPRECIOTOTAL AS PRECIO01,     
+                                    FIC_P02IPRECIOTOTAL AS PRECIO02,     
+                                    FIC_P03IPRECIOTOTAL AS PRECIO03,     
+                                    FIC_P04IPRECIOTOTAL AS PRECIO04,
                                     FI_UNIDAD
 
-                                    INTO "C:/a2CA2020/Empre001/TMP/TABLA_A" 
-                                    FROM "C:/a2CA2020/Empre001/TMP/A2INVENTARIO" 
-                                    INNER JOIN "C:/a2CA2020/Empre001/TMP/A2PRECIOS" ON FI_CODIGO = FIC_CODEITEM """)
+                                    INTO "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/TABLA_A" 
+                                    FROM "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2INVENTARIO" 
+                                    INNER JOIN "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/A2PRECIOS" ON FI_CODIGO = FIC_CODEITEM """)
                                     #INNER JOIN "C:/a2CA2020/Empre001/TMP/A2DEP01"  ON FI_CATEGORIA = FD_CODIGO
                                     #INNER JOIN "C:/a2CA2020/Empre001/TMP/A2EXISTENCIA" ON FI_CODIGO = FT_CODIGOPRODUCTO """)
             ######### QUERY TO SEND PRODUCTS TO WEB FIRST TIME EVER WHEN FI_INTERNET = TRUE####################
@@ -87,27 +87,20 @@ class search_changes():
            connect = pyodbc.connect("DSN=A2KSA")
            cur = connect.cursor()
            cur.execute("""SELECT *
-                            INTO TABLA_B
-                            FROM TABLA_A""")
+                            INTO "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/TABLA_B"
+                            FROM "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/TABLA_A" """)
 
         except Exception as e:
             print(e)   
 
-    def changes_clients():
-        try:
-            connect = pyodbc.connect("DSN=A2KSA")
-            cur = connect.cursor()
-            cur.execute(""" """)
-        except Exception as e:
-            print(e)     
 
     def search_new_register():
         try:
             ##### SEARCH NEW PRODUCTS ACTIVATE AND CONSTRUCT JSON FILE TO POST METHOD ###########
             connect = pyodbc.connect("DSN=A2KSA")
             cur = connect.cursor()
-            cur.execute("""SELECT * FROM "C:/a2CA2020/Empre001/TMP/TABLA_A" A
-                                    WHERE FI_INTERNET = 1 AND FI_CODIGO NOT IN(SELECT FI_CODIGO FROM "C:/a2CA2020/Empre001/TMP/TABLA_B") 
+            cur.execute("""SELECT * FROM "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/TABLA_A" A
+                                    WHERE FI_INTERNET = 1 AND FI_CODIGO NOT IN(SELECT FI_CODIGO FROM "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/TABLA_B") 
                                                     """)    
             new = cur.fetchall()
             if len(new) > 0:
@@ -162,8 +155,8 @@ class search_changes():
                                         CASE WHEN A.PRECIO04 <> B.PRECIO04 THEN A.PRECIO04
                                             ELSE -1 END AS PRECIO04
                                         
-                                        FROM "C:/a2CA2020/Empre001/TMP/TABLA_A" A
-                                        INNER JOIN "C:/a2CA2020/Empre001/TMP/TABLA_B" B ON A.FI_CODIGO = B.FI_CODIGO
+                                        FROM "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/TABLA_A" A
+                                        INNER JOIN "X:/a2appsH/Pagina_Web/ConectorA2/Products/Tmp/TABLA_B" B ON A.FI_CODIGO = B.FI_CODIGO
                                         WHERE 
                                         A.FI_INTERNET <> B.FI_INTERNET OR 
                                         A.FI_DESCRIPCION <> B.FI_DESCRIPCION OR
@@ -183,7 +176,7 @@ class search_changes():
             else:
                 pass          
             update = search_changes.search_new_register()
-            if update == list:
+            if type(update) == list:
                 var_post = send_api_cloud.post(update)
                 if var_post != '400':
                     NEW_PRODUCTS = True
