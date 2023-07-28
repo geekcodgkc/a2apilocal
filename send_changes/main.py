@@ -32,7 +32,10 @@ class Api():
                                 FIC_P01PRECIOTOTALEXT,     --PRECIO 01 EN DOLARES.
                                 FIC_P02PRECIOTOTALEXT,     --COSTO ACTUAL   EN DOLARES.
                                 FIC_P03PRECIOTOTALEXT,     --COSTO PROMEDIO EN DOLARES.
-                                FIC_P04PRECIOTOTALEXT
+                                FIC_P04PRECIOTOTALEXT,
+                                CASE WHEN FIC_IMP01MONTO = 16 THEN FIC_IMP01MONTO
+                                WHEN FIC_IMP02MONTO = 8 THEN FIC_IMP02MONTO
+                                ELSE 0 END AS TAX
                                 INTO "C:/a2CA2020/Empre001/TMP/A2PRECIOS"
                                 FROM A2INVCOSTOSPRECIOS """)
             cur_a2.execute("""CREATE INDEX IF NOT EXISTS "FIC_CODEITEM" ON "C:/a2CA2020/Empre001/TMP/A2PRECIOS" ("FIC_CODEITEM")""") 
@@ -67,8 +70,8 @@ class Api():
                                     FIC_P02PRECIOTOTALEXT AS PRECIO02,     
                                     FIC_P03PRECIOTOTALEXT AS PRECIO03,     
                                     FIC_P04PRECIOTOTALEXT AS PRECIO04,
-                                    FI_UNIDAD
-
+                                    FI_UNIDAD,
+                                    TAX    
                                     INTO "C:/a2CA2020/Empre001/TMP/TABLA_A "
                                     FROM "C:/a2CA2020/Empre001/TMP/A2INVENTARIO" 
                                     INNER JOIN "C:/a2CA2020/Empre001/TMP/A2PRECIOS" ON FI_CODIGO = FIC_CODEITEM""")
@@ -96,7 +99,8 @@ class Api():
                                                 'p2': i[6],
                                                 'p3':i[7],
                                                 'p4':i[8] },
-                                   'presentation': 'botella'
+                                   'presentation': i[9],
+                                   'tax': i[10]
                                                 } )         
         status = send_api_cloud.post(json_array)   
         print(status)  
